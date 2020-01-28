@@ -32,7 +32,7 @@ File organization - self-explanatory rather than a detailed Readme
 
 ## Exploring your R installation
 Packages - by default live locally in `.Library`.
-```{r}
+```{r, eval = FALSE}
 .Library
 .libPaths() # shows actual paths
 installed.packages() # show all installed packages
