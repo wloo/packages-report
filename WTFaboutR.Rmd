@@ -1,0 +1,332 @@
+---
+title: "What they forgot to teach you about R"
+author: "Pendulum, Therapeutics, Inc."
+date: "01/27/2020"
+output: 
+  html_document: 
+    toc: yes
+    toc_depth: 3
+    toc_float: true
+    keep_md: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  error = TRUE, 
+  echo = TRUE, 
+  fig.width = 10, 
+  fig.height = 7)
+```
+
+```{r}
+library(tidyverse)
+```
+
+# Day 1
+## Deep thoughts
+Organization - work on it today - don't need to go back and re-organize old things. 
+File organization - self-explanatory rather than a detailed Readme
+"Good enough practices in scientific computing" paper by Wilson, Bryan, et al  <http://bit.ly/good-enuff>
+
+## Exploring your R installation
+Packages - by default live locally in `.Library`.
+```{r}
+.Library
+.libPaths() # shows actual paths
+installed.packages() # show all installed packages
+```
+
+Loading the R project code with the `use_course` command
+```{r, eval = FALSE}
+library(usethis)
+use_course("rstd.io/wtf-explore-libraries", "~/Documents/Workshop/WTFaboutR") # Timed out because of too many people, manually downloaded from github
+```
+Below is copied from `01_explore-libraries_comfy.R`
+```{r, eval = FALSE}
+#' Which libraries does R search for packages?
+
+# try .libPaths(), .Library
+
+
+#' Installed packages
+
+## use installed.packages() to get all installed packages
+## if you like working with data frame or tibble, make it so right away!
+## remember to use View(), dplyr::glimpse(), or similar to inspect
+library(data.table)
+pkgs <- installed.packages() %>% data.table
+
+## how many packages?
+dim(pkgs) 
+# 308 packages
+
+#' Exploring the packages
+
+## count some things! inspiration
+##   * tabulate by LibPath, Priority, or both
+pkgs[, .N, by = .(LibPath)]
+pkgs[, .N, by = .(Priority)]
+
+##   * what proportion need compilation?
+pkgs[, .N/nrow(pkgs), by = .(NeedsCompilation)]
+
+##   * how break down re: version of R they were built on
+pkgs[, .N, by = .(Built)]
+
+## for tidyverts, here are some useful patterns
+# data %>% count(var)
+# data %>% count(var1, var2)
+# data %>% count(var) %>% mutate(prop = n / sum(n))
+
+#' Reflections
+
+## reflect on ^^ and make a few notes to yourself; inspiration
+##   * does the number of base + recommended packages make sense to you?
+# I guess it's an indication that getting priority on CRAN is difficult? From stackoverflow, base R are not actually packages at all and are included in every R distribution. In contrast, the 'recommended' packages are specifically installed.
+
+
+##   * how does the result of .libPaths() relate to the result of .Library?
+.Library
+.libPaths()
+
+#' Going further
+
+## if you have time to do more ...
+
+## is every package in .Library either base or recommended?
+# No, most are not either of these! Only R core can set these
+
+## study package naming style (all lower case, contains '.', etc)
+
+## use `fields` argument to installed.packages() to get more info and use it!
+```
+
+## Adopt a project oriented workflow
+Why? Create isolated unit for each project - easier to work on multiple projects, collaborate/distribute, and start and stop
+
+How? 
+* Lowest tech is dedicated directory - manual curation. 
+* Rstudio Project - feature in Rstudio to track 
+* Git repo
+
+Bad practices
+* setwd at the top of a script to a local path that only I have - doesn't work for anyone else! 
+* rm(list = ls()) - usually suggested to do a 'clean slate' but does not remove full environment and could interfere with the working environment of others
+
+Instead - workflows instead of scripts
+<https://www.tidyverse.org/articles/2017/12/workflow-vs-script/>
+<https://whattheyforgot.org/>
+
+What is an Rstudio Project?
+* dedicated instance of Rstudio
+* file browser pointed to project directory
+* working directory also pointed to project directory
+
+Use a 'blank slate' options
+* DO NOT restore .Rdata
+* "NEVER" save workspace on exit
+
+### Practice
+Create a new R project with create_project
+```{r, eval = FALSE}
+usethis::create_project("~/Documents/Workshop/WTFaboutR/new_project")
+```
+
+"Safe paths"
+* relative to a stable base - if you have copies of the project around, it should work across those copies. 
+  * project directory, user's home directory, official location for installed software
+* Use file system functions (NOT `paste`, `strsplit`, etc)
+
+Rather than hard coding the absolute path, create the path at runtime relative to the stable base
+
+Two packages
+* "fs"
+* "here" - build paths inside a project
+  * top level of the project is the working directory and forms the paths at runtime
+  * it knows where you are in the tree and will give the correct location even if the relative path has changed (e.g. working directory is now in a subfolder)
+  
+
+```{r, eval = FALSE}
+install.packages("fs")
+install.packages("here")
+```
+
+```{r, eval = FALSE}
+library(usethis)
+use_course("rstats-wtf/wtf-fix-paths", "~/Documents/Workshop/WTFaboutR/")
+
+```
+
+Exercises within the `wtf-fix-paths.Rproj`
+
+Syntax for here::here() arguments are separated by commas for easier integration with variables.
+
+## Names
+Names should: be machine readable, human readable, and sort nicely
+
+Machine readable - regular expressions and globbing, delimiter use consistent
+Human readable - name contains context info, and use user friendly names (longer, more informative)
+Sort nicely - put something numeric and left pad with 0s for width, use the ISO 8601 (YYYY-MM-DD) for dates, order chronological or common sense
+
+Example names - they used underscores to delimit fields (e..g number, topic, type) while dashes allow for multi-word fields
+
+## Project modularity
+Break logic and output into pieces rather than a monolithic script (e.g. parsing, wrangling, analyzing, visualizing, reporting)
+
+```{r, eval = FALSE}
+use_course("rstd.io/wtf-packages-report", "~/Desktop/")
+```
+
+For distribution - how to handle dependencies? Renv is a package for managing that 
+
+## Debugging
+<https://rstats.wtf/debugging-r-code.html>
+Usually confront an error message. Places to search:
+* google exact error message
+* keyword search on community.rstudio.com
+* stackoverflow [r] tag
+
+Tools for debugging
+* traceback() - look at call stack 
+* inspect objects (e.g. print, cat, str)
+* browser() - puts into interactive debugger
+* debug, trace, recover - inspecting code that you don't have full control over (debugging someone else's code, like a package)
+
+*Traceback*
+Read the commands bottom to top
+
+Could create a shortcut in .Rprofile
+Or can use rlang with `options(error = rlang::entrace)`. `rlang::last_error()` and `rlang::last_trace()`
+
+Traceback is informative for the maintainer of code to determine where the error occurred. 
+
+*Print*
+Printing messages can help identify where the error occurs. 
+
+*str*
+Gives structure of the variable
+
+*browser*
+Puts you into the interactive debugger. Let's your run any R command at the location of the `browser()` function call, e.g. ls, print, str. 
+
+Controlling execution:
+* n = next statement - run next statement and then stop again
+* c = continue - keep running until error or finish
+* s = step into function call
+* f = finish loop/function - then stop
+* where = show previous calls
+* Q - quit debugger
+
+Exercises in `wtf-debugging-master`
+
+*RStudio debugging breakpoints*
+Clicking at a line number inserts a breakpoint - same as adding `browser()` at that line when the file is sourced
+
+*Debug error inspector*
+Re-run with debug is not as useful because it usually goes too low level
+
+*Debug console*
+Buttons for the commands
+
+*recover*
+Like browser but more powerful
+Gives a dialogue to ask where to recover from. Enter again and goes back to the selection menu for where to inspect.
+
+Can set the global option: `options(error = recover)` so that dialog always gets brought up when an error occurs. Can reset back to `error = NULL`
+
+### Debug exercise 2
+Debugging with pipes can be difficult - can try to use without pipes first. 
+`options(error = rlang::entrace)` filters the backtrace to only keep the relevant function calls
+
+
+*debug*
+puts a browser statement at the beginning of the argument
+
+*trace* 
+allows you to put any code into other code
+can also specify where in the function to add the code
+
+Can explore the location of code using `as.list` to add code with trace
+
+## Version control
+Track the evolution of the project at the snapshots, or "commits" - a state that is meaningful to you for inspection, comparison, restoration.
+
+<https://doi.org/10.7287/peerj.preprints.3159v2> paper about version control
+<https://happygitwithr.com> book about git with R
+
+### Project initiation
+Make a remote copy of their remote repo - "fork"
+Make a local project from a remote - "clone" - first focus
+Make a remote repo from a local project - a little fiddly
+
+*Clone*
+daily work, push and pull from local to remote
+Possible to clone someone else's repo but not as useful because you can't upload those changes into that repo 
+
+*Fork*
+Copy a remote repo into your Github account, then clone it to a local copy so you can do the push and pull with your repo. Then can do a pull request back to original repo you forked from (how to contribute to other people's stuff)
+
+*new project, github first*
+This approach glosses over a couple big technical points: remotes and branches. 
+
+Created `packages-report` Git repo. When the R project is created Github first, there's a Git tab next to Environment. Diff will then show what's changed from the last commit. 
+
+Two step process: "add"/"stage" and then "commit"
+
+When do you need to stage?
+You do every time you want to save a snapshot/commit. Git window will show which files got edited with "M" for modified file. 
+
+What should you include in a commit?
+* .Rproj can be useful for collaboration
+* .gitignore - Kara uses it to keep consistent across machines
+
+Push by clicking green up arrow button.
+
+*Writing vs reading*
+Difference between what you write vs what people like to read
+
+Compile report button in Rstudio is ~"render::Rmarkdown"
+
+Github does not render .html but Markdown .md files are useful. Render to .md instead of .html. Do this using the comment at the top:
+```{r}
+# Only html output
+#' ---
+#' title: "Untitled"
+#' output: html_document
+#' ---
+
+# Keep the .md
+#' ---
+#' title: "Untitled"
+#' output: 
+#'  html_document:
+#'    keep_md: yes
+#' ---
+
+
+# Only md
+#' output: md_document
+
+# github document
+#' output: github_document
+```
+
+
+Takeaways:
+1. Consider putting rendered products on GitHub
+2. Markdown (.md) is much more useful on Github than html, docx, pdf. Binary formats like docx and pdf are very difficult to resolve merge conflicts, so be wary of tracking them with Git.
+
+
+
+
+
+
+
+# Downloading course materials
+```{r, eval = FALSE}
+use_course("rstd.io/wtf-startup", destdir = "~/Documents/Workshop/WTFaboutR")
+```
+Try reinstalling curl and test with a simple download. Somehow the timeout from curl is crashing R. 
+
