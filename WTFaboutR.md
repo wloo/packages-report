@@ -1,11 +1,4 @@
-What they forgot to teach you about R
-================
-Pendulum, Therapeutics, Inc.
-01/27/2020
-
-``` r
-library(tidyverse)
-```
+    library(tidyverse)
 
     ## ── Attaching packages ────────────────────────────────────────────────── tidyverse 1.2.1 ──
 
@@ -18,94 +11,93 @@ library(tidyverse)
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
 
-# Day 1
+Day 1
+=====
 
-## Deep thoughts
+Deep thoughts
+-------------
 
 Organization - work on it today - don’t need to go back and re-organize
 old things. File organization - self-explanatory rather than a detailed
 Readme “Good enough practices in scientific computing” paper by Wilson,
-Bryan, et al <http://bit.ly/good-enuff>
+Bryan, et al
+<a href="http://bit.ly/good-enuff" class="uri">http://bit.ly/good-enuff</a>
 
-## Exploring your R installation
+Exploring your R installation
+-----------------------------
 
 Packages - by default live locally in `.Library`.
 
-``` r
-.Library
-.libPaths() # shows actual paths
-installed.packages() # show all installed packages
-```
+    .Library
+    .libPaths() # shows actual paths
+    installed.packages() # show all installed packages
 
 Loading the R project code with the `use_course` command
 
-``` r
-library(usethis)
-use_course("rstd.io/wtf-explore-libraries", "~/Documents/Workshop/WTFaboutR") # Timed out because of too many people, manually downloaded from github
-```
+    library(usethis)
+    use_course("rstd.io/wtf-explore-libraries", "~/Documents/Workshop/WTFaboutR") # Timed out because of too many people, manually downloaded from github
 
 Below is copied from `01_explore-libraries_comfy.R`
 
-``` r
-#' Which libraries does R search for packages?
+    #' Which libraries does R search for packages?
 
-# try .libPaths(), .Library
-
-
-#' Installed packages
-
-## use installed.packages() to get all installed packages
-## if you like working with data frame or tibble, make it so right away!
-## remember to use View(), dplyr::glimpse(), or similar to inspect
-library(data.table)
-pkgs <- installed.packages() %>% data.table
-
-## how many packages?
-dim(pkgs) 
-# 308 packages
-
-#' Exploring the packages
-
-## count some things! inspiration
-##   * tabulate by LibPath, Priority, or both
-pkgs[, .N, by = .(LibPath)]
-pkgs[, .N, by = .(Priority)]
-
-##   * what proportion need compilation?
-pkgs[, .N/nrow(pkgs), by = .(NeedsCompilation)]
-
-##   * how break down re: version of R they were built on
-pkgs[, .N, by = .(Built)]
-
-## for tidyverts, here are some useful patterns
-# data %>% count(var)
-# data %>% count(var1, var2)
-# data %>% count(var) %>% mutate(prop = n / sum(n))
-
-#' Reflections
-
-## reflect on ^^ and make a few notes to yourself; inspiration
-##   * does the number of base + recommended packages make sense to you?
-# I guess it's an indication that getting priority on CRAN is difficult? From stackoverflow, base R are not actually packages at all and are included in every R distribution. In contrast, the 'recommended' packages are specifically installed.
+    # try .libPaths(), .Library
 
 
-##   * how does the result of .libPaths() relate to the result of .Library?
-.Library
-.libPaths()
+    #' Installed packages
 
-#' Going further
+    ## use installed.packages() to get all installed packages
+    ## if you like working with data frame or tibble, make it so right away!
+    ## remember to use View(), dplyr::glimpse(), or similar to inspect
+    library(data.table)
+    pkgs <- installed.packages() %>% data.table
 
-## if you have time to do more ...
+    ## how many packages?
+    dim(pkgs) 
+    # 308 packages
 
-## is every package in .Library either base or recommended?
-# No, most are not either of these! Only R core can set these
+    #' Exploring the packages
 
-## study package naming style (all lower case, contains '.', etc)
+    ## count some things! inspiration
+    ##   * tabulate by LibPath, Priority, or both
+    pkgs[, .N, by = .(LibPath)]
+    pkgs[, .N, by = .(Priority)]
 
-## use `fields` argument to installed.packages() to get more info and use it!
-```
+    ##   * what proportion need compilation?
+    pkgs[, .N/nrow(pkgs), by = .(NeedsCompilation)]
 
-## Adopt a project oriented workflow
+    ##   * how break down re: version of R they were built on
+    pkgs[, .N, by = .(Built)]
+
+    ## for tidyverts, here are some useful patterns
+    # data %>% count(var)
+    # data %>% count(var1, var2)
+    # data %>% count(var) %>% mutate(prop = n / sum(n))
+
+    #' Reflections
+
+    ## reflect on ^^ and make a few notes to yourself; inspiration
+    ##   * does the number of base + recommended packages make sense to you?
+    # I guess it's an indication that getting priority on CRAN is difficult? From stackoverflow, base R are not actually packages at all and are included in every R distribution. In contrast, the 'recommended' packages are specifically installed.
+
+
+    ##   * how does the result of .libPaths() relate to the result of .Library?
+    .Library
+    .libPaths()
+
+    #' Going further
+
+    ## if you have time to do more ...
+
+    ## is every package in .Library either base or recommended?
+    # No, most are not either of these! Only R core can set these
+
+    ## study package naming style (all lower case, contains '.', etc)
+
+    ## use `fields` argument to installed.packages() to get more info and use it!
+
+Adopt a project oriented workflow
+---------------------------------
 
 Why? Create isolated unit for each project - easier to work on multiple
 projects, collaborate/distribute, and start and stop
@@ -114,13 +106,13 @@ How? \* Lowest tech is dedicated directory - manual curation. \* Rstudio
 Project - feature in Rstudio to track \* Git repo
 
 Bad practices \* setwd at the top of a script to a local path that only
-I have - doesn’t work for anyone else\! \* rm(list = ls()) - usually
+I have - doesn’t work for anyone else! \* rm(list = ls()) - usually
 suggested to do a ‘clean slate’ but does not remove full environment and
 could interfere with the working environment of others
 
 Instead - workflows instead of scripts
-<https://www.tidyverse.org/articles/2017/12/workflow-vs-script/>
-<https://whattheyforgot.org/>
+<a href="https://www.tidyverse.org/articles/2017/12/workflow-vs-script/" class="uri">https://www.tidyverse.org/articles/2017/12/workflow-vs-script/</a>
+<a href="https://whattheyforgot.org/" class="uri">https://whattheyforgot.org/</a>
 
 What is an Rstudio Project? \* dedicated instance of Rstudio \* file
 browser pointed to project directory \* working directory also pointed
@@ -133,9 +125,7 @@ workspace on exit
 
 Create a new R project with create\_project
 
-``` r
-usethis::create_project("~/Documents/Workshop/WTFaboutR/new_project")
-```
+    usethis::create_project("~/Documents/Workshop/WTFaboutR/new_project")
 
 “Safe paths” \* relative to a stable base - if you have copies of the
 project around, it should work across those copies. \* project
@@ -151,22 +141,19 @@ runtime \* it knows where you are in the tree and will give the correct
 location even if the relative path has changed (e.g. working directory
 is now in a subfolder)
 
-``` r
-install.packages("fs")
-install.packages("here")
-```
+    install.packages("fs")
+    install.packages("here")
 
-``` r
-library(usethis)
-use_course("rstats-wtf/wtf-fix-paths", "~/Documents/Workshop/WTFaboutR/")
-```
+    library(usethis)
+    use_course("rstats-wtf/wtf-fix-paths", "~/Documents/Workshop/WTFaboutR/")
 
 Exercises within the `wtf-fix-paths.Rproj`
 
 Syntax for here::here() arguments are separated by commas for easier
 integration with variables.
 
-## Names
+Names
+-----
 
 Names should: be machine readable, human readable, and sort nicely
 
@@ -179,23 +166,24 @@ for dates, order chronological or common sense
 Example names - they used underscores to delimit fields (e..g number,
 topic, type) while dashes allow for multi-word fields
 
-## Project modularity
+Project modularity
+------------------
 
 Break logic and output into pieces rather than a monolithic script
 (e.g. parsing, wrangling, analyzing, visualizing, reporting)
 
-``` r
-use_course("rstd.io/wtf-packages-report", "~/Desktop/")
-```
+    use_course("rstd.io/wtf-packages-report", "~/Desktop/")
 
 For distribution - how to handle dependencies? Renv is a package for
 managing that
 
-## Debugging
+Debugging
+---------
 
-<https://rstats.wtf/debugging-r-code.html> Usually confront an error
-message. Places to search: \* google exact error message \* keyword
-search on community.rstudio.com \* stackoverflow \[r\] tag
+<a href="https://rstats.wtf/debugging-r-code.html" class="uri">https://rstats.wtf/debugging-r-code.html</a>
+Usually confront an error message. Places to search: \* google exact
+error message \* keyword search on community.rstudio.com \*
+stackoverflow \[r\] tag
 
 Tools for debugging \* traceback() - look at call stack \* inspect
 objects (e.g. print, cat, str) \* browser() - puts into interactive
@@ -240,8 +228,8 @@ to recover from. Enter again and goes back to the selection menu for
 where to inspect.
 
 Can set the global option: `options(error = recover)` so that dialog
-always gets brought up when an error occurs. Can reset back to `error =
-NULL`
+always gets brought up when an error occurs. Can reset back to
+`error = NULL`
 
 ### Debug exercise 2
 
@@ -256,13 +244,16 @@ where in the function to add the code
 
 Can explore the location of code using `as.list` to add code with trace
 
-## Version control
+Version control
+---------------
 
 Track the evolution of the project at the snapshots, or “commits” - a
 state that is meaningful to you for inspection, comparison, restoration.
 
-<https://doi.org/10.7287/peerj.preprints.3159v2> paper about version
-control <https://happygitwithr.com> book about git with R
+<a href="https://doi.org/10.7287/peerj.preprints.3159v2" class="uri">https://doi.org/10.7287/peerj.preprints.3159v2</a>
+paper about version control
+<a href="https://happygitwithr.com" class="uri">https://happygitwithr.com</a>
+book about git with R
 
 ### Project initiation
 
@@ -301,45 +292,41 @@ Push by clicking green up arrow button.
 *Writing vs reading* Difference between what you write vs what people
 like to read
 
-Compile report button in Rstudio is \~“render::Rmarkdown”
+Compile report button in Rstudio is ~“render::Rmarkdown”
 
 Github does not render .html but Markdown .md files are useful. Render
 to .md instead of .html. Do this using the comment at the top:
 
-``` r
-# Only html output
-#' ---
-#' title: "Untitled"
-#' output: html_document
-#' ---
+    # Only html output
+    #' ---
+    #' title: "Untitled"
+    #' output: html_document
+    #' ---
 
-# Keep the .md
-#' ---
-#' title: "Untitled"
-#' output: 
-#'  html_document:
-#'    keep_md: yes
-#' ---
+    # Keep the .md
+    #' ---
+    #' title: "Untitled"
+    #' output: 
+    #'  html_document:
+    #'    keep_md: yes
+    #' ---
 
 
-# Only md
-#' output: md_document
+    # Only md
+    #' output: md_document
 
-# github document
-#' output: github_document
-```
+    # github document
+    #' output: github_document
 
 Takeaways: 1. Consider putting rendered products on GitHub 2. Markdown
 (.md) is much more useful on Github than html, docx, pdf. Binary formats
 like docx and pdf are very difficult to resolve merge conflicts, so be
-wary of tracking them with
-Git.
+wary of tracking them with Git.
 
-# Downloading course materials
+Downloading course materials
+============================
 
-``` r
-use_course("rstd.io/wtf-startup", destdir = "~/Documents/Workshop/WTFaboutR")
-```
+    use_course("rstd.io/wtf-startup", destdir = "~/Documents/Workshop/WTFaboutR")
 
 Try reinstalling curl and test with a simple download. Somehow the
 timeout from curl is crashing R.
