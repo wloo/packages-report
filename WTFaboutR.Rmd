@@ -2,12 +2,7 @@
 title: "What they forgot to teach you about R"
 author: "Pendulum, Therapeutics, Inc."
 date: "01/27/2020"
-output: 
-  html_document: 
-    toc: yes
-    toc_depth: 3
-    toc_float: true
-    keep_md: yes
+output: github_document
 editor_options: 
   chunk_output_type: console
 ---
